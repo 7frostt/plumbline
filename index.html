@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plumbline - Spatial Debugger for Roblox</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-main: #e0e0e0;
+            --text-muted: #888888;
+            --code-bg: #1e1e1e;
+            --accent: #58a6ff;
+            --border: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-weight: 600;
+            margin-bottom: 16px;
+            margin-top: 40px;
+            color: #ffffff;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-top: 24px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: #b0b0b0;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+            background-color: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #ff7b72;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: var(--text-main);
+        }
+
+        .api-block {
+            margin-bottom: 32px;
+        }
+
+        .api-signature {
+            background-color: #1a1a1a;
+            border-left: 3px solid var(--accent);
+            padding: 12px 16px;
+            font-family: monospace;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            border-radius: 0 4px 4px 0;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-bottom: 16px;
+            color: #b0b0b0;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            background: #238636;
+            color: white;
+            border-radius: 12px;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Plumbline <span class="badge">v1.0.0</span></h1>
+        <p>A fast, zero-allocation spatial debugger and raycast visualizer for Roblox.</p>
+    </header>
+
+    <section id="about">
+        <h2>The Frustration</h2>
+        <p>I built Plumbline out of sheer frustration. For a long time, every time I needed to debug a melee hitbox,
+            check an NPC's line of sight, or calculate a bullet ricochet, I had to write a dozen lines of code to spawn
+            a temporary translucent red part. Doing that 60 times a second tanked my framerate, bloated my memory with
+            garbage collection, and made my workspace an absolute mess.</p>
+        <p>I just wanted a way to see my math in 3D space instantly without paying a massive physics cost.</p>
+    </section>
+
+    <section id="features">
+        <h2>Why Plumbline?</h2>
+        <ul>
+            <li><strong>Zero-Allocation:</strong> Utilizes a recyclable <code>HandleAdornment</code> object pool. Draw
+                hundreds of hitboxes every frame with zero garbage collection lag.</li>
+            <li><strong>Bypasses Physics:</strong> Visuals are purely graphical. They don't wake up the Roblox physics
+                engine.</li>
+            <li><strong>Production-Safe:</strong> Flip <code>Plumbline.Enabled = false</code> in your live game, and all
+                visualizer calls instantly bypass execution, costing zero performance.</li>
+        </ul>
+    </section>
+
+    <section id="api">
+        <h2>API Reference</h2>
+
+        <div class="api-block">
+            <h3>Vectors & Raycasts</h3>
+            <div class="api-signature">Plumbline.Ray(origin, direction, result, [duration], [options])</div>
+            <p>Smart raycast visualizer. Automatically clamps the line to the impact point, draws an impact dot, and
+                renders the surface normal vector. If the ray misses, it draws the full path in red.</p>
+
+            <div class="api-signature">Plumbline.Arrow(origin, vector, [color], [duration])</div>
+            <p>Draws a directional vector with an arrowhead. Perfect for visualizing velocities or custom normals.</p>
+        </div>
+
+        <div class="api-block">
+            <h3>Static Volumes</h3>
+            <div class="api-signature">Plumbline.Box(cframe, size, [color], [duration])</div>
+            <p>Draws an oriented bounding box. Use this to visualize melee hitboxes or <code>GetPartBoundsInBox</code>.
+            </p>
+
+            <div class="api-signature">Plumbline.Sphere(center, radius, [color], [duration])</div>
+            <p>Draws a radial volume. Ideal for explosions and <code>GetPartBoundsInRadius</code> queries.</p>
+        </div>
+
+        <div class="api-block">
+            <h3>Swept Shapecasts</h3>
+            <div class="api-signature">Plumbline.Blockcast(cframe, size, direction, result, [duration], [options])</div>
+            <p>Visualizes a swept box projection. Shows the starting volume, the travel path, and the exact terminal
+                impact box where the cast collided.</p>
+
+            <div class="api-signature">Plumbline.Spherecast(origin, radius, direction, result, [duration], [options])
+            </div>
+            <p>Visualizes a swept sphere projection. Shows the starting sphere, travel line, and impact state.</p>
+        </div>
+
+        <div class="api-block">
+            <h3>Advanced Gizmos</h3>
+            <div class="api-signature">Plumbline.Trajectory(origin, velocity, [gravity], [duration], [segments],
+                [raycastParams])</div>
+            <p>Predicts and draws multi-bounce parabolic physics arcs. Calculates ricochets and elasticity for grenades,
+                cannonballs, and physical projectiles.</p>
+
+            <div class="api-signature">Plumbline.Cone(origin, direction, angleDeg, range, [duration], [color])</div>
+            <p>Draws a 3D radar cone with depth rings. Essential for debugging NPC stealth detection angles,
+                flashlights, and vision systems.</p>
+
+            <div class="api-signature">Plumbline.Axes(cframe, [size], [duration])</div>
+            <p>Spawns a professional XYZ coordinate gizmo with translucent glass planes. Use this to instantly
+                understand the local space and orientation of rotating parts.</p>
+        </div>
+    </section>
+
+</body>
+
+</html>
